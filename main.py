@@ -1,8 +1,3 @@
-from tkinter import *
+import gui
 
-window = Tk()
-
-button_search = Button(window)
-button_search.pack()
-
-window.mainloop()
+gui.mainGui()
