@@ -1,4 +1,5 @@
 import http.client
+import xml.etree.ElementTree as ET
 conn = http.client.HTTPConnection("apis.data.go.kr")
 
 
@@ -19,7 +20,16 @@ def search_flight(user_input):
 
         conn.request("GET",key+request)
         req = conn.getresponse()
-        print(req.status,req.reason)
-        print(req.read().decode('utf-8'))
+        # print(req.status,req.reason)
+        xml_data = req.read().decode('utf-8')
 
+        root = ET.fromstring(xml_data)
+        items = root.find(".//items")
+        data_list = []
+        for item in items.findall("item"):
+            data_dict = {}
+            for child in item:
+                data_dict[child.tag] = child.text
+            data_list.append(data_dict)
 
+        return data_list

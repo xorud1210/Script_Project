@@ -22,4 +22,5 @@ class mainGui:
 
     def search(self):
         arrival = self.entry_search.get()
-        search.search_flight(arrival)
+        data = search.search_flight(arrival)
+        print(data)
