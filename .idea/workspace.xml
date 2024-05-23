@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="37afaa2e-99ea-4898-8636-d7e439719353" name="Changes" comment="Entry ui와 xml 검색 연결">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/search.py" beforeDir="false" afterPath="$PROJECT_DIR$/search.py" afterDir="false" />
-    </list>
+    <list default="true" id="37afaa2e-99ea-4898-8636-d7e439719353" name="Changes" comment="xml 데이터를 딕셔너리 리스트에 저장" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -169,12 +166,21 @@
       <option name="project" value="LOCAL" />
       <updated>1716458403602</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="xml 데이터를 딕셔너리 리스트에 저장">
+      <option name="closed" value="true" />
+      <created>1716459561643</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1716459561643</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="윈도우, 검색 이미지 버튼 생성" />
     <MESSAGE value="Entry ui와 xml 검색 연결" />
-    <option name="LAST_COMMIT_MESSAGE" value="Entry ui와 xml 검색 연결" />
+    <MESSAGE value="xml 데이터를 딕셔너리 리스트에 저장" />
+    <option name="LAST_COMMIT_MESSAGE" value="xml 데이터를 딕셔너리 리스트에 저장" />
   </component>
 </project>
