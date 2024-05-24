@@ -21,6 +21,20 @@ class mainGui:
         self.window.mainloop()
 
     def search(self):
+        airlines = set()
+        gates = set()
+        arrivetimes = set()
         arrival = self.entry_search.get()
         data = search.search_flight(arrival)
         print(data)
+        for item in data:
+            for key,value in item.items():
+                if 'airline' in item:
+                    airlines.add(item['airline'])
+                if 'gatenumber' in item:
+                    gates.add(item['gatenumber'])
+                if 'estimatedDateTime' in item:
+                    arrivetimes.add(item['estimatedDateTime'])
+        print(airlines)
+        print(gates)
+        print(arrivetimes)
