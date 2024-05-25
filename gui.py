@@ -9,7 +9,13 @@ class mainGui:
         self.window['bg'] = "light gray"
         self.window.title("Flight Information")
 
+
         self.frame_search = Frame(self.window)
+        self.toggle_button_text = StringVar()
+        self.toggle_button_text.set("출발")
+        self.button_toggle = Button(self.frame_search, textvariable=self.toggle_button_text,
+                                    command=self.toggle_text)
+        self.button_toggle.pack(side='left', padx=10, pady=10)
         self.frame_search.grid(row=0,column=0)
         self.image_button = PhotoImage(file="image/search_button25.png")
         self.button_search = Button(self.frame_search, image=self.image_button, command=self.search)
@@ -21,9 +27,13 @@ class mainGui:
 
         self.frame_flight_info = Frame(self.window, bg="white")
         self.frame_flight_info.place(x=10, y=70, width=450, height=650)
-        self.canvas = Canvas(self.frame_flight_info, bg="white")
-        self.scrollbar = Scrollbar(self.frame_flight_info, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = Frame(self.canvas, bg="white")
+
+        self.listbox = Listbox(self.frame_flight_info, font=("Arial", 12), bg="white", activestyle="none")
+        self.scrollbar = Scrollbar(self.frame_flight_info, orient="vertical", command=self.listbox.yview)
+        self.listbox.config(yscrollcommand=self.scrollbar.set)
+
+        self.listbox.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
 
         self.canvas_chart = Canvas(self.window, bg="dark gray")
         self.canvas_chart.place(x=470, y=70, width=540, height=300)
@@ -31,8 +41,11 @@ class mainGui:
         self.canvas_map = Canvas(self.window, bg="black")
         self.canvas_map.place(x=470, y=380, width=540, height=300)
 
-        self.frame_weather = Frame(self.window, bg="gray")
-        self.frame_weather.place(x=470, y=690, width=540, height=70)
+        self.frame_weather = Frame(self.window, bg="light gray")
+        self.frame_weather.place(x=470, y=690, width=540, height=100)
+
+        self.label_weather_info = Label(self.frame_weather, text="", font=("Arial", 12), bg="light gray")
+        self.label_weather_info.pack(pady=10)
 
         self.window.mainloop()
 
@@ -40,6 +53,10 @@ class mainGui:
         airlines = []
         gates = []
         arrivetimes = []
+        winds = []
+        temps = []
+        senstemps = []
+        himiditys = []
         arrival = self.entry_search.get()
         data = search.search_flight(arrival)
 
@@ -54,6 +71,15 @@ class mainGui:
                     gates.append(item['gatenumber'])
                 if 'estimatedDateTime' in item:
                     arrivetimes.append(item['estimatedDateTime'])
+                if 'wind' in item:
+                    winds.append(item['wind'])
+                if 'temp' in item:
+                    temps.append(item['temp'])
+                if 'senstemp' in item:
+                    senstemps.append(item['senstemp'])
+                if 'himidity' in item:
+                    himiditys.append(item['himidity'])
+
 
 
         print(airlines)
@@ -62,6 +88,9 @@ class mainGui:
         for i in range(len(airlines)):
             self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {airlines[i]}", f"도착 예정시간: 12:{arrivetimes[i]}",
                                     f"탑승구: {gates[i]}",i)
+
+        self.display_weather_info(winds[0], temps[0], senstemps[0], himiditys[0])
+
 
     def create_flight_info(self, parent, airline, arrival_time, gate, index):
         frame = Frame(parent, bg="light gray", bd=2, relief="groove")
@@ -75,3 +104,20 @@ class mainGui:
 
         label_gate = Label(frame, text=gate, bg="light gray", font=("Arial", 12))
         label_gate.pack(anchor='w', padx=10)
+
+    def display_weather_info(self, winds, temps, senstemps, himiditys):
+        # 날씨 정보를 라벨에 표시하는 함수
+        weather_info = (
+            f"풍속: {' '.join(winds)}\n"
+            f"온도: {' '.join(temps)}\n"
+            f"체감 온도: {' '.join(senstemps)}\n"
+            f"습도: {' '.join(himiditys)}"
+        )
+        self.label_weather_info.config(text=weather_info)
+
+    def toggle_text(self):
+        # 버튼 텍스트를 토글하는 함수
+        if self.toggle_button_text.get() == "출발":
+            self.toggle_button_text.set("도착")
+        else:
+            self.toggle_button_text.set("출발")
