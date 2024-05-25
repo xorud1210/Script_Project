@@ -26,6 +26,9 @@ class mainGui:
         arrivetimes = set()
         arrival = self.entry_search.get()
         data = search.search_flight(arrival)
+
+        if not data: return
+
         print(data)
         for item in data:
             for key,value in item.items():
