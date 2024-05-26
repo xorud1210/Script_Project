@@ -1,5 +1,8 @@
 import http.client
 import xml.etree.ElementTree as ET
+
+import resource
+
 conn = http.client.HTTPConnection("apis.data.go.kr")
 
 
@@ -15,12 +18,18 @@ def search_flight(user_input):
         print("해당 위치의 공항이 존재하지 않습니다.")
     else:
         arrival = aiport_dict[user_input]   # 공항명으로 공항코드 가져오기
-        key = "/B551177/StatusOfPassengerWorldWeatherInfo/getPassengerArrivalsWorldWeather?serviceKey=eLcNVCfcVblDAm4R38R6ZyXiv6NCbnm4BW%2BDZkJ8n6pyZ%2B%2B0neiwxu9JxX8Vfq6p11Kprd%2Fc7csZGGulLZjvEQ%3D%3D&"
-        request = "numOfRows=2&pageNo=1&from_time=0000&to_time=2400&airport="+arrival+"&lang=K&type=xml"
+        print(arrival)
+        if resource.p.toggle_get() == "출발":
+            operation = "getPassengerArrivalsWorldWeather"
+        else:
+            operation = "getPassengerDeparturesWorldWeather"
+        key = "/B551177/StatusOfPassengerWorldWeatherInfo/"+operation+"?serviceKey=eLcNVCfcVblDAm4R38R6ZyXiv6NCbnm4BW%2BDZkJ8n6pyZ%2B%2B0neiwxu9JxX8Vfq6p11Kprd%2Fc7csZGGulLZjvEQ%3D%3D&"
+        request = "numOfRows=5&pageNo=1&from_time=0000&to_time=2400&airport="+arrival+"&lang=K&type=xml"
 
         conn.request("GET",key+request)
         req = conn.getresponse()
         # print(req.status,req.reason)
+        # print(req.read().decode('utf-8'))
         xml_data = req.read().decode('utf-8')
 
         root = ET.fromstring(xml_data)
@@ -32,4 +41,6 @@ def search_flight(user_input):
                 data_dict[child.tag] = child.text
             data_list.append(data_dict)
 
+        for d in data_list:
+            print(d)
         return data_list

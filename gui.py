@@ -122,3 +122,7 @@ class mainGui:
             self.toggle_button_text.set("도착")
         else:
             self.toggle_button_text.set("출발")
+
+    def toggle_get(self):
+        # 버튼 텍스트 내용을 반환하는 함수
+        return self.toggle_button_text.get()
