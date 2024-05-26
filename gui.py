@@ -47,7 +47,6 @@ class mainGui:
         self.label_weather_info = Label(self.frame_weather, text="", font=("Arial", 12), bg="light gray")
         self.label_weather_info.pack(pady=10)
 
-        self.window.mainloop()
 
     def search(self):
         airlines = []
@@ -62,34 +61,36 @@ class mainGui:
 
         if not data: return
 
-        print(data)
         for item in data:
+            airline = dict()
             for key,value in item.items():
-                if 'airline' in item:
-                    airlines.append(item['airline'])
-                if 'gatenumber' in item:
-                    gates.append(item['gatenumber'])
-                if 'estimatedDateTime' in item:
-                    arrivetimes.append(item['estimatedDateTime'])
-                if 'wind' in item:
-                    winds.append(item['wind'])
-                if 'temp' in item:
-                    temps.append(item['temp'])
-                if 'senstemp' in item:
-                    senstemps.append(item['senstemp'])
-                if 'himidity' in item:
-                    himiditys.append(item['himidity'])
+                airline[key] = value
+            airlines.append(airline)
+                # if 'airline' in item:
+                #     airlines.append(item['airline'])
+                # if 'gatenumber' in item:
+                #     gates.append(item['gatenumber'])
+                # if 'estimatedDateTime' in item:
+                #     arrivetimes.append(item['estimatedDateTime'])
+                # if 'wind' in item:
+                #     winds.append(item['wind'])
+                # if 'temp' in item:
+                #     temps.append(item['temp'])
+                # if 'senstemp' in item:
+                #     senstemps.append(item['senstemp'])
+                # if 'himidity' in item:
+                #     himiditys.append(item['himidity'])
 
 
 
-        print(airlines)
-        print(gates)
-        print(arrivetimes)
+        # print(airlines)
+        # print(gates)
+        # print(arrivetimes)
         for i in range(len(airlines)):
-            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {airlines[i]}", f"도착 예정시간: 12:{arrivetimes[i]}",
-                                    f"탑승구: {gates[i]}",i)
+            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {airlines[i]['airline']}", f"도착 예정시간: 12:{airlines[i]['estimatedDateTime']}",
+                                    f"탑승구: {airlines[i]['gatenumber']}",i)
 
-        self.display_weather_info(winds[0], temps[0], senstemps[0], himiditys[0])
+        self.display_weather_info(airlines[0]['wind'], airlines[0]['temp'], airlines[0]['senstemp'], airlines[0]['himidity'])
 
 
     def create_flight_info(self, parent, airline, arrival_time, gate, index):
@@ -117,7 +118,7 @@ class mainGui:
 
     def toggle_text(self):
         # 버튼 텍스트를 토글하는 함수
-        if self.toggle_button_text.get() == "출발":
+        if self.toggle_get() == "출발":
             self.toggle_button_text.set("도착")
         else:
             self.toggle_button_text.set("출발")
