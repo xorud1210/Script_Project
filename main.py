@@ -1,3 +1,3 @@
-import gui
+import resource
 
-gui.mainGui()
+resource.p.window.mainloop()
