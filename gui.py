@@ -1,5 +1,13 @@
 from tkinter import *
 import search
+import requests
+from PIL import Image, ImageTk
+import io
+from googlemaps import Client
+
+
+Google_API_Key = 'AIzaSyBahrp2wpi8q5bUWU1IN71zobn3WG-EAtA'
+gmaps = Client(key=Google_API_Key)
 
 class mainGui:
 
@@ -41,12 +49,33 @@ class mainGui:
         self.canvas_map = Canvas(self.window, bg="black")
         self.canvas_map.place(x=470, y=380, width=540, height=300)
 
+        self.label_map = Label(self.canvas_map)
+        self.label_map.pack()
+
         self.frame_weather = Frame(self.window, bg="light gray")
         self.frame_weather.place(x=470, y=690, width=540, height=100)
 
         self.label_weather_info = Label(self.frame_weather, text="", font=("Arial", 12), bg="light gray")
         self.label_weather_info.pack(pady=10)
 
+        # 지도 설정
+        center = gmaps.geocode("인천공항")[0]['geometry']['location']
+        self.zoom = 10
+        size = "540x300"
+        maptype = "roadmap"
+        map_url = f"https://maps.googleapis.com/maps/api/staticmap?center={center['lat']},{center['lng']}&zoom={self.zoom}&size={size}&maptype={maptype}&key={Google_API_Key}"
+        marker_url = f"&markers=color:red%7C{center['lat']},{center['lng']}"
+        map_url += marker_url
+
+        #지도 이미지 업데이트
+        response = requests.get(map_url)
+
+        image_data = io.BytesIO(response.content)
+        image = Image.open(image_data)
+        photo = ImageTk.PhotoImage(image)
+
+        self.label_map.config(image=photo)
+        self.label_map.image = photo
 
     def search(self):
         airlines = []
@@ -91,6 +120,8 @@ class mainGui:
                                     f"탑승구: {airlines[i]['gatenumber']}",i)
 
         self.display_weather_info(airlines[0]['wind'], airlines[0]['temp'], airlines[0]['senstemp'], airlines[0]['himidity'])
+        # 지도 업데이트
+        self.update_map()
 
 
     def create_flight_info(self, parent, airline, arrival_time, gate, index):
@@ -126,3 +157,30 @@ class mainGui:
     def toggle_get(self):
         # 버튼 텍스트 내용을 반환하는 함수
         return self.toggle_button_text.get()
+
+
+    def update_map(self):
+        # 지도 설정
+
+        # 검색시에 도착 공항을 중심으로
+        if self.toggle_get() == "출발":      # 출발일 때는 인천공항으로
+            center = gmaps.geocode("인천공항")[0]['geometry']['location']
+        else:                               # 도착일 때는 검색한 곳으로
+            center = gmaps.geocode(f"{self.entry_search.get()}공항")[0]['geometry']['location']
+
+        self.zoom = 10      # 나중에 줌인 줌아웃 설정할 수도 있게
+        size = "540x300"
+        maptype = "roadmap"
+        map_url = f"https://maps.googleapis.com/maps/api/staticmap?center={center['lat']},{center['lng']}&zoom={self.zoom}&size={size}&maptype={maptype}&key={Google_API_Key}"
+        marker_url = f"&markers=color:red%7C{center['lat']},{center['lng']}"
+        map_url += marker_url
+
+        # 지도 이미지 업데이트
+        response = requests.get(map_url)
+
+        image_data = io.BytesIO(response.content)
+        image = Image.open(image_data)
+        photo = ImageTk.PhotoImage(image)
+
+        self.label_map.config(image=photo)
+        self.label_map.image = photo
