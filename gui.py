@@ -1,3 +1,4 @@
+import urllib.request
 from tkinter import *
 import search
 import requests
@@ -80,8 +81,12 @@ class mainGui:
         self.label_map.config(image=photo)
         self.label_map.image = photo
 
+        # 날씨 이미지
+        self.weather_label = Label(self.window)
+        self.weather_label.place(x=935, y=380,width=75, height=75)
+
     def search(self):
-        airlines = []
+        self.airlines = []
         gates = []
         arrivetimes = []
         winds = []
@@ -97,7 +102,7 @@ class mainGui:
             airline = dict()
             for key,value in item.items():
                 airline[key] = value
-            airlines.append(airline)
+            self.airlines.append(airline)
                 # if 'airline' in item:
                 #     airlines.append(item['airline'])
                 # if 'gatenumber' in item:
@@ -118,19 +123,20 @@ class mainGui:
         # print(airlines)
         # print(gates)
         # print(arrivetimes)
-        for i in range(len(airlines)):
-            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {airlines[i]['airline']}", f"도착 예정시간:{airlines[i]['estimatedDateTime']}",
-                                    f"탑승구: {airlines[i]['gatenumber']}",i)
+        for i in range(len(self.airlines)):
+            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {self.airlines[i]['airline']}", f"도착 예정시간:{self.airlines[i]['estimatedDateTime']}",
+                                    f"탑승구: {self.airlines[i]['gatenumber']}",i)
 
-        self.display_weather_info(airlines[0]['wind'], airlines[0]['temp'], airlines[0]['senstemp'], airlines[0]['himidity'])
+        self.display_weather_info(self.airlines[0]['wind'], self.airlines[0]['temp'], self.airlines[0]['senstemp'], self.airlines[0]['himidity'])
         # 지도 업데이트
         self.update_map()
-        self.create_bar_chart(arrivetimes)
+        self.update_weather()
+        # self.create_bar_chart(arrivetimes)
 
 
     def create_flight_info(self, parent, airline, arrival_time, gate, index):
         frame = Frame(parent, bg="light gray", bd=2, relief="groove")
-        frame.place(x=10, y=10 + index * 120, width=430, height=110)
+        frame.place(x=10, y=10 + index * 120, width=410, height=110)
 
         label_airline = Label(frame, text=airline, bg="light gray", font=("Arial", 14))
         label_airline.pack(anchor='w', padx=10, pady=5)
@@ -213,3 +219,14 @@ class mainGui:
 
         self.label_map.config(image=photo)
         self.label_map.image = photo
+
+    def update_weather(self):
+        url = self.airlines[0]['wimage']
+
+        with urllib.request.urlopen(url) as u:
+            raw_data = u.read()
+
+        wm = Image.open(io.BytesIO(raw_data))
+        image = ImageTk.PhotoImage(wm)
+        self.weather_label.config(image=image)
+        self.weather_label.image = image
