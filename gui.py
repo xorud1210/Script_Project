@@ -4,7 +4,10 @@ import requests
 from PIL import Image, ImageTk
 import io
 from googlemaps import Client
-
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from collections import Counter
+import datetime
 
 Google_API_Key = 'AIzaSyBahrp2wpi8q5bUWU1IN71zobn3WG-EAtA'
 gmaps = Client(key=Google_API_Key)
@@ -116,12 +119,13 @@ class mainGui:
         # print(gates)
         # print(arrivetimes)
         for i in range(len(airlines)):
-            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {airlines[i]['airline']}", f"도착 예정시간: 12:{airlines[i]['estimatedDateTime']}",
+            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {airlines[i]['airline']}", f"도착 예정시간:{airlines[i]['estimatedDateTime']}",
                                     f"탑승구: {airlines[i]['gatenumber']}",i)
 
         self.display_weather_info(airlines[0]['wind'], airlines[0]['temp'], airlines[0]['senstemp'], airlines[0]['himidity'])
         # 지도 업데이트
         self.update_map()
+        self.create_bar_chart(arrivetimes)
 
 
     def create_flight_info(self, parent, airline, arrival_time, gate, index):
@@ -146,6 +150,31 @@ class mainGui:
             f"습도: {' '.join(himiditys)}"
         )
         self.label_weather_info.config(text=weather_info)
+
+    def create_bar_chart(self, arrivetimes):
+        hours = [int(time[11:13]) for time in arrivetimes]  # 시간 부분 추출
+        hour_counts = Counter(hours)
+
+        #if not hour_counts:
+            #return
+
+        # 캔버스 초기화
+        self.canvas_chart.delete("all")
+
+        # 막대 그래프 그리기
+        max_count = max(hour_counts.values())
+        canvas_height = int(self.canvas_chart['height'])
+        canvas_width = int(self.canvas_chart['width'])
+        bar_width = canvas_width // 24
+
+        for hour, count in hour_counts.items():
+            x0 = hour * bar_width
+            y0 = canvas_height - (count / max_count) * canvas_height
+            x1 = (hour + 1) * bar_width
+            y1 = canvas_height
+            self.canvas_chart.create_rectangle(x0, y0, x1, y1, fill="blue")
+            self.canvas_chart.create_text(x0 + bar_width // 2, y0 - 10, text=str(count), anchor=S)
+            self.canvas_chart.create_text(x0 + bar_width // 2, canvas_height + 10, text=str(hour), anchor=N)
 
     def toggle_text(self):
         # 버튼 텍스트를 토글하는 함수
