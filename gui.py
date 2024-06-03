@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from collections import Counter
 import datetime
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 Google_API_Key = 'AIzaSyBahrp2wpi8q5bUWU1IN71zobn3WG-EAtA'
 gmaps = Client(key=Google_API_Key)
@@ -63,6 +66,7 @@ class mainGui:
         self.label_weather_info.pack(pady=10)
 
         # 지도 설정
+        """
         center = gmaps.geocode("인천공항")[0]['geometry']['location']
         self.zoom = 10
         size = "540x300"
@@ -80,10 +84,13 @@ class mainGui:
 
         self.label_map.config(image=photo)
         self.label_map.image = photo
-
+"""
         # 날씨 이미지
         self.weather_label = Label(self.window)
         self.weather_label.place(x=935, y=380,width=75, height=75)
+
+        self.button_email_ui = Button(self.frame_search, text="Open Email UI", command=self.open_email_ui)
+        self.button_email_ui.pack(side='left', padx=10, pady=10)
 
     def search(self):
         self.airlines = []
@@ -230,3 +237,50 @@ class mainGui:
         image = ImageTk.PhotoImage(wm)
         self.weather_label.config(image=image)
         self.weather_label.image = image
+
+    def open_email_ui(self):
+        self.email_ui_window = Toplevel(self.window)
+        self.email_ui_window.title("Send Email")
+        self.email_ui_window.geometry("400x300")
+        self.email_ui_window['bg'] = "light gray"
+
+        Label(self.email_ui_window, text="Your Email:", bg="light gray").pack(pady=5)
+        self.entry_from_email = Entry(self.email_ui_window)
+        self.entry_from_email.pack(pady=5)
+
+        Label(self.email_ui_window, text="Recipient Email:", bg="light gray").pack(pady=5)
+        self.entry_to_email = Entry(self.email_ui_window)
+        self.entry_to_email.pack(pady=5)
+
+        Label(self.email_ui_window, text="Password:", bg="light gray").pack(pady=5)
+        self.entry_password = Entry(self.email_ui_window, show='*')
+        self.entry_password.pack(pady=5)
+
+        Button(self.email_ui_window, text="Send", command=self.send_email).pack(pady=20)
+
+    def send_email(self):
+        from_addr = self.entry_from_email.get()
+        to_addr = self.entry_to_email.get()
+        password = self.entry_password.get()
+
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = from_addr
+            msg['To'] = to_addr
+            msg['Subject'] = 'Flight Information'
+
+            body = 'Here is the flight information you requested.'
+
+            msg.attach(MIMEText(body, 'plain'))
+
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(from_addr, password)
+            text = msg.as_string()
+            server.sendmail(from_addr, to_addr, text)
+            server.quit()
+
+            print("Email sent successfully")
+            self.email_ui_window.destroy()
+        except Exception as e:
+            print(f"Failed to send email: {e}")
