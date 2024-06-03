@@ -89,7 +89,7 @@ class mainGui:
         self.weather_label = Label(self.window)
         self.weather_label.place(x=935, y=380,width=75, height=75)
 
-        self.button_email_ui = Button(self.frame_search, text="Open Email UI", command=self.open_email_ui)
+        self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
         self.button_email_ui.pack(side='left', padx=10, pady=10)
 
     def search(self):
@@ -284,3 +284,14 @@ class mainGui:
             self.email_ui_window.destroy()
         except Exception as e:
             print(f"Failed to send email: {e}")
+
+    def open_new_ui(self):
+        self.window.destroy()  # 기존 창 닫기
+        new_ui = NewUI()  # 새로운 UI 열기
+
+class NewUI:
+    def __init__(self):
+        self.window = Tk()
+        self.window.geometry("1000x800")
+        self.window['bg'] = "light gray"
+        self.window.title("New UI")
