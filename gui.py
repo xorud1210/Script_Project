@@ -33,7 +33,7 @@ class mainGui:
         self.button_toggle.pack(side='left', padx=10, pady=10)
         self.frame_search.grid(row=0,column=0)
         self.image_button = PhotoImage(file="image/search_button25.png")
-        self.button_search = Button(self.frame_search, image=self.image_button, command=self.search)
+        self.button_search = Button(self.frame_search, image=self.image_button, command=self.search_weather)
         self.button_search['bg'] = 'dark gray'
         self.entry_search = Entry(self.frame_search)
 
@@ -92,16 +92,11 @@ class mainGui:
         self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
         self.button_email_ui.pack(side='left', padx=10, pady=10)
 
-    def search(self):
+    def search_weather(self):
         self.airlines = []
-        gates = []
         arrivetimes = []
-        winds = []
-        temps = []
-        senstemps = []
-        himiditys = []
         arrival = self.entry_search.get()
-        data = search.search_flight(arrival)
+        data = search.search_api('기상', arrival)
 
         if not data: return
 
@@ -110,26 +105,7 @@ class mainGui:
             for key,value in item.items():
                 airline[key] = value
             self.airlines.append(airline)
-                # if 'airline' in item:
-                #     airlines.append(item['airline'])
-                # if 'gatenumber' in item:
-                #     gates.append(item['gatenumber'])
-                # if 'estimatedDateTime' in item:
-                #     arrivetimes.append(item['estimatedDateTime'])
-                # if 'wind' in item:
-                #     winds.append(item['wind'])
-                # if 'temp' in item:
-                #     temps.append(item['temp'])
-                # if 'senstemp' in item:
-                #     senstemps.append(item['senstemp'])
-                # if 'himidity' in item:
-                #     himiditys.append(item['himidity'])
 
-
-
-        # print(airlines)
-        # print(gates)
-        # print(arrivetimes)
         for i in range(len(self.airlines)):
             self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {self.airlines[i]['airline']}", f"도착 예정시간:{self.airlines[i]['estimatedDateTime']}",
                                     f"탑승구: {self.airlines[i]['gatenumber']}",i)
@@ -140,6 +116,13 @@ class mainGui:
         self.update_weather()
         # self.create_bar_chart(arrivetimes)
 
+    def search_shuttle(self):
+        data = search.search_api('셔틀')
+        # 아직 무슨 데이터를 어떻게 주는지 몰라서 나중에 업데이트 해야 될 듯?
+
+    def search_parking(self):
+        data = search.search_api('주차')
+        # 아직 무슨 데이터를 어떻게 주는지 몰라서 나중에 업데이트 해야 될 듯?
 
     def create_flight_info(self, parent, airline, arrival_time, gate, index):
         frame = Frame(parent, bg="light gray", bd=2, relief="groove")
