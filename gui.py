@@ -24,14 +24,18 @@ class mainGui:
         self.window['bg'] = "light gray"
         self.window.title("Flight Information")
 
+        self.create_main_ui()
+        self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
+        self.button_email_ui.pack(side='left', padx=10, pady=10)
 
+    def create_main_ui(self):
         self.frame_search = Frame(self.window)
         self.toggle_button_text = StringVar()
         self.toggle_button_text.set("출발")
         self.button_toggle = Button(self.frame_search, textvariable=self.toggle_button_text,
                                     command=self.toggle_text)
         self.button_toggle.pack(side='left', padx=10, pady=10)
-        self.frame_search.grid(row=0,column=0)
+        self.frame_search.grid(row=0, column=0)
         self.image_button = PhotoImage(file="image/search_button25.png")
         self.button_search = Button(self.frame_search, image=self.image_button, command=self.search_weather)
         self.button_search['bg'] = 'dark gray'
@@ -65,32 +69,31 @@ class mainGui:
         self.label_weather_info = Label(self.frame_weather, text="", font=("Arial", 12), bg="light gray")
         self.label_weather_info.pack(pady=10)
 
-        # 지도 설정
-        """
-        center = gmaps.geocode("인천공항")[0]['geometry']['location']
-        self.zoom = 10
-        size = "540x300"
-        maptype = "roadmap"
-        map_url = f"https://maps.googleapis.com/maps/api/staticmap?center={center['lat']},{center['lng']}&zoom={self.zoom}&size={size}&maptype={maptype}&key={Google_API_Key}"
-        marker_url = f"&markers=color:red%7C{center['lat']},{center['lng']}"
-        map_url += marker_url
-
-        #지도 이미지 업데이트
-        response = requests.get(map_url)
-
-        image_data = io.BytesIO(response.content)
-        image = Image.open(image_data)
-        photo = ImageTk.PhotoImage(image)
-
-        self.label_map.config(image=photo)
-        self.label_map.image = photo
-"""
         # 날씨 이미지
         self.weather_label = Label(self.window)
-        self.weather_label.place(x=935, y=380,width=75, height=75)
+        self.weather_label.place(x=935, y=380, width=75, height=75)
 
+    def clear_ui(self):
+        for widget in self.window.winfo_children():
+            widget.destroy()
+
+    def create_new_ui(self):
+        self.frame_new_ui = Frame(self.window, bg="light gray")
+        self.frame_new_ui.pack(fill='both', expand=True)
+
+        Label(self.frame_new_ui, text="This is the new UI", font=("Arial", 16), bg="light gray").pack(pady=20)
+
+        Button(self.frame_new_ui, text="Go Back", command=self.back_to_main_ui).pack(pady=20)
+
+    def back_to_main_ui(self):
+        self.clear_ui()
+        self.create_main_ui()
         self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
         self.button_email_ui.pack(side='left', padx=10, pady=10)
+
+    def open_new_ui(self):
+        self.clear_ui()
+        self.create_new_ui()
 
     def search_weather(self):
         self.airlines = []
@@ -268,9 +271,6 @@ class mainGui:
         except Exception as e:
             print(f"Failed to send email: {e}")
 
-    def open_new_ui(self):
-        self.window.destroy()  # 기존 창 닫기
-        new_ui = NewUI()  # 새로운 UI 열기
 
 class NewUI:
     def __init__(self):
