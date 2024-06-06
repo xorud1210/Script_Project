@@ -35,7 +35,7 @@ class mainGui:
         self.button_toggle = Button(self.frame_search, textvariable=self.toggle_button_text,
                                     command=self.toggle_text)
         self.button_toggle.pack(side='left', padx=10, pady=10)
-        self.frame_search.grid(row=0, column=0)
+        self.frame_search.pack()
         self.image_button = PhotoImage(file="image/search_button25.png")
         self.button_search = Button(self.frame_search, image=self.image_button, command=self.search_weather)
         self.button_search['bg'] = 'dark gray'
@@ -44,25 +44,34 @@ class mainGui:
         self.entry_search.pack(side='left')
         self.button_search.pack(side='right')
 
-        self.frame_flight_info = Frame(self.window, bg="white")
-        self.frame_flight_info.place(x=10, y=70, width=450, height=650)
+        # 검색 리스트 / 버튼으로 변경 및 스크롤바 수정
+        self.frame_flight_container = Frame(self.window, bg="white")
+        self.frame_flight_container.pack(side="left")
 
-        self.listbox = Listbox(self.frame_flight_info, font=("Arial", 12), bg="white", activestyle="none")
-        self.scrollbar = Scrollbar(self.frame_flight_info, orient="vertical", command=self.listbox.yview)
-        self.listbox.config(yscrollcommand=self.scrollbar.set)
+        self.canvas_flight = Canvas(self.frame_flight_container, bg='white',width=450,height=650)
+        self.canvas_flight.pack(side="left")
 
-        self.listbox.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
+        self.scrollbar = Scrollbar(self.frame_flight_container, orient="vertical", command=self.canvas_flight.yview)
+        self.scrollbar.pack(side="right", fill='y')
 
+        self.frame_flight_info = Frame(self.canvas_flight, bg="white")
+
+        self.canvas_flight.config(yscrollcommand=self.scrollbar.set)
+        self.canvas_flight.create_window((0,0), window=self.frame_flight_info, anchor='nw')
+        self.frame_flight_info.bind("<Configure>", self.on_frame_configure)
+
+        # 그래프
         self.canvas_chart = Canvas(self.window, bg="dark gray")
         self.canvas_chart.place(x=470, y=70, width=540, height=300)
 
+        # 지도 표시
         self.canvas_map = Canvas(self.window, bg="black")
         self.canvas_map.place(x=470, y=380, width=540, height=300)
 
         self.label_map = Label(self.canvas_map)
         self.label_map.pack()
 
+        # 기상 정보 표시
         self.frame_weather = Frame(self.window, bg="light gray")
         self.frame_weather.place(x=470, y=690, width=540, height=100)
 
@@ -72,6 +81,11 @@ class mainGui:
         # 날씨 이미지
         self.weather_label = Label(self.window)
         self.weather_label.place(x=935, y=380, width=75, height=75)
+
+        self.update_map()
+
+    def on_frame_configure(self, event):
+        self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
 
     def clear_ui(self):
         for widget in self.window.winfo_children():
@@ -110,8 +124,8 @@ class mainGui:
             self.airlines.append(airline)
 
         for i in range(len(self.airlines)):
-            self.create_flight_info(self.frame_flight_info, f"항공사: 항공사 {self.airlines[i]['airline']}", f"도착 예정시간:{self.airlines[i]['estimatedDateTime']}",
-                                    f"탑승구: {self.airlines[i]['gatenumber']}",i)
+            text = f"항공사: {self.airlines[i]['airline']} \n도착 예정시간: {self.airlines[i]['estimatedDateTime']}\n탑승구: {self.airlines[i]['gatenumber']}"
+            self.create_flight_info(text)
 
         self.display_weather_info(self.airlines[0]['wind'], self.airlines[0]['temp'], self.airlines[0]['senstemp'], self.airlines[0]['himidity'])
         # 지도 업데이트
@@ -127,19 +141,24 @@ class mainGui:
         data = search.search_api('주차')
         # 아직 무슨 데이터를 어떻게 주는지 몰라서 나중에 업데이트 해야 될 듯?
 
-    def create_flight_info(self, parent, airline, arrival_time, gate, index):
-        frame = Frame(parent, bg="light gray", bd=2, relief="groove")
-        frame.place(x=10, y=10 + index * 120, width=410, height=110)
+    def create_flight_info(self, text):
+        button = Button(self.frame_flight_info,text=text,width=63,height=5)
+        button.config(command=lambda btn = button: self.select_flight)
+        button.pack(fill='x', pady=5)
+        # frame = Frame(parent, bg="light gray", bd=2, relief="groove")
+        # frame.place(x=10, y=10 + index * 120, width=410, height=110)
+        #
+        # label_airline = Label(frame, text=airline, bg="light gray", font=("Arial", 14))
+        # label_airline.pack(anchor='w', padx=10, pady=5)
+        #
+        # label_arrival_time = Label(frame, text=arrival_time, bg="light gray", font=("Arial", 12))
+        # label_arrival_time.pack(anchor='w', padx=10)
+        #
+        # label_gate = Label(frame, text=gate, bg="light gray", font=("Arial", 12))
+        # label_gate.pack(anchor='w', padx=10)
 
-        label_airline = Label(frame, text=airline, bg="light gray", font=("Arial", 14))
-        label_airline.pack(anchor='w', padx=10, pady=5)
-
-        label_arrival_time = Label(frame, text=arrival_time, bg="light gray", font=("Arial", 12))
-        label_arrival_time.pack(anchor='w', padx=10)
-
-        label_gate = Label(frame, text=gate, bg="light gray", font=("Arial", 12))
-        label_gate.pack(anchor='w', padx=10)
-
+    def select_flight(self):
+        pass
     def display_weather_info(self, winds, temps, senstemps, himiditys):
         # 날씨 정보를 라벨에 표시하는 함수
         weather_info = (

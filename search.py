@@ -27,7 +27,7 @@ def search_api( 종류, user_input = None):
             else:
                 operation = "getPassengerDeparturesWorldWeather"
             info = "StatusOfPassengerWorldWeatherInfo/"+operation+"?serviceKey=" + serviceKey
-            request = "numOfRows=5&pageNo=1&from_time=0000&to_time=2400&airport="+arrival+"&lang=K&type=xml"
+            request = "numOfRows=20&pageNo=1&from_time=0000&to_time=2400&airport="+arrival+"&lang=K&type=xml"
     elif 종류 == '주차':
         info = "BusInformation/getBusInfo?serviceKey="+serviceKey
         request = "numOfRows=10&pageNo=1&area=1&type=xml"
@@ -54,6 +54,6 @@ def search_api( 종류, user_input = None):
             data_dict[child.tag] = child.text
         data_list.append(data_dict)
 
-    for d in data_list:
-        print(d)
+    # for d in data_list:
+    #     print(d)
     return data_list
