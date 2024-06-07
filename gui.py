@@ -128,6 +128,8 @@ class mainGui:
             for key,value in item.items():
                 airline[key] = value
             self.airlines.append(airline)
+            arrivetimes.append(item['estimatedDateTime'])
+
 
         for i in range(len(self.airlines)):
             text = f"항공사: {self.airlines[i]['airline']} \n도착 예정시간: {self.airlines[i]['estimatedDateTime']}\n탑승구: {self.airlines[i]['gatenumber']}"
@@ -137,7 +139,7 @@ class mainGui:
         # 지도 업데이트
         self.update_map()
         self.update_weather()
-        # self.create_bar_chart(arrivetimes)
+        self.create_bar_chart(arrivetimes)
 
     def search_shuttle(self):
         data = search.search_api('셔틀')
@@ -176,30 +178,28 @@ class mainGui:
         self.label_weather_info.config(text=weather_info)
 
     def create_bar_chart(self, arrivetimes):
-        hours = [int(time[11:13]) for time in arrivetimes]  # 시간 부분 추출
+        hours = [int(time[0:2]) for time in arrivetimes]  # 시간 부분 추출
         hour_counts = Counter(hours)
 
-        #if not hour_counts:
-            #return
+        hours_sorted = sorted(hour_counts.keys())
+        counts_sorted = [hour_counts[hour] for hour in hours_sorted]
 
         # 캔버스 초기화
-        self.canvas_chart.delete("all")
+        for widget in self.canvas_chart.winfo_children():
+            widget.destroy()
 
         # 막대 그래프 그리기
-        max_count = max(hour_counts.values())
-        canvas_height = int(self.canvas_chart['height'])
-        canvas_width = int(self.canvas_chart['width'])
-        bar_width = canvas_width // 24
+        fig, ax = plt.subplots()
+        ax.bar(hours_sorted, counts_sorted)
 
-        for hour, count in hour_counts.items():
-            x0 = hour * bar_width
-            y0 = canvas_height - (count / max_count) * canvas_height
-            x1 = (hour + 1) * bar_width
-            y1 = canvas_height
-            self.canvas_chart.create_rectangle(x0, y0, x1, y1, fill="blue")
-            self.canvas_chart.create_text(x0 + bar_width // 2, y0 - 10, text=str(count), anchor=S)
-            self.canvas_chart.create_text(x0 + bar_width // 2, canvas_height + 10, text=str(hour), anchor=N)
+        ax.set_xlabel('Hour of the Day')
+        ax.set_ylabel('Number of Flights')
+        ax.set_title('Number of Flights by Hour')
 
+        # Tkinter에 그래프 표시
+        canvas = FigureCanvasTkAgg(fig, master=self.canvas_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill='both', expand=True)
     def toggle_text(self):
         # 버튼 텍스트를 토글하는 함수
         if self.toggle_get() == "출발":
