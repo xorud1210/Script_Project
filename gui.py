@@ -1,6 +1,7 @@
 import urllib.request
 from tkinter import *
 import search
+import telepot
 import requests
 from PIL import Image, ImageTk
 import io
@@ -27,6 +28,8 @@ class mainGui:
         self.create_main_ui()
         self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
         self.button_email_ui.pack(side='left', padx=10, pady=10)
+        bot = telepot.Bot('7249865131:AAH6niNiFwVd5zgKxRUuw2-f2uSrQzU8DxM')
+        bot.sendMessage('7496452214', '테스트입니다')
 
     def create_main_ui(self):
         self.frame_search = Frame(self.window)
@@ -98,6 +101,7 @@ class mainGui:
         Label(self.frame_new_ui, text="This is the new UI", font=("Arial", 16), bg="light gray").pack(pady=20)
 
         Button(self.frame_new_ui, text="Go Back", command=self.back_to_main_ui).pack(pady=20)
+        Button(self.frame_new_ui, text="Send Email", command=self.open_email_ui).pack(pady=20)
 
     def back_to_main_ui(self):
         self.clear_ui()
@@ -208,7 +212,7 @@ class mainGui:
 
     def update_map(self):
         # 지도 설정
-
+        """
         # 검색시에 도착 공항을 중심으로
         if self.toggle_get() == "출발":      # 출발일 때는 인천공항으로
             center = gmaps.geocode("인천공항")[0]['geometry']['location']
@@ -231,6 +235,7 @@ class mainGui:
 
         self.label_map.config(image=photo)
         self.label_map.image = photo
+        """
 
     def update_weather(self):
         url = self.airlines[0]['wimage']
