@@ -2,6 +2,7 @@ import urllib.request
 from tkinter import *
 import search
 import telepot
+from telepot.loop import MessageLoop
 import requests
 from PIL import Image, ImageTk
 import io
@@ -28,8 +29,9 @@ class mainGui:
         self.create_main_ui()
         self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
         self.button_email_ui.pack(side='left', padx=10, pady=10)
-        bot = telepot.Bot('7249865131:AAH6niNiFwVd5zgKxRUuw2-f2uSrQzU8DxM')
-        bot.sendMessage('7496452214', '테스트입니다')
+        self.bot = telepot.Bot('7249865131:AAH6niNiFwVd5zgKxRUuw2-f2uSrQzU8DxM')
+        MessageLoop(self.bot, self.handle_message).run_as_thread()
+        #bot.sendMessage('7496452214', '테스트입니다')
 
     def create_main_ui(self):
         self.frame_search = Frame(self.window)
@@ -294,6 +296,33 @@ class mainGui:
             self.email_ui_window.destroy()
         except Exception as e:
             print(f"Failed to send email: {e}")
+
+    def handle_message(self, msg):
+        content_type, chat_type, chat_id = telepot.glance(msg)
+        if content_type == 'text':
+            airport_name = msg['text']
+            # 공항 이름을 사용하여 운항 정보를 검색
+            flight_info = self.get_flight_info(airport_name)
+            # 운항 정보를 사용자에게 전송
+            self.bot.sendMessage(chat_id, flight_info)
+
+    def get_flight_info(self, airport_name):
+        # 여기에 공항 이름을 기반으로 운항 정보를 검색하는 로직을 추가하세요.
+        # 예를 들어, search_api 함수를 사용할 수 있습니다.
+        data = search.search_api('기상', airport_name)
+        if not data:
+            return "운항 정보를 찾을 수 없습니다."
+
+        flight_info = []
+        for item in data:
+            info = (
+                f"항공사: {item['airline']}\n"
+                f"도착 예정시간: {item['estimatedDateTime']}\n"
+                f"탑승구: {item['gatenumber']}"
+            )
+            flight_info.append(info)
+
+        return "\n\n".join(flight_info)
 
 
 class NewUI:
