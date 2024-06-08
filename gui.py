@@ -28,14 +28,15 @@ class mainGui:
 
         self.frames = {}    # 하나의 창? 페이지? 가 한 프레임
 
-        self.create_frames()
+        self.create_frames()    # 여기서 쓰이는 창(프레임)을 생성
 
         self.bot = telepot.Bot('7249865131:AAH6niNiFwVd5zgKxRUuw2-f2uSrQzU8DxM')
         MessageLoop(self.bot, self.handle_message).run_as_thread()
         #bot.sendMessage('7496452214', '테스트입니다')
 
-        self.create_menu()
-        self.show_frame('search')
+        self.create_menu()              # 메뉴 바 생성
+        self.show_frame('search')       # 프레임 전환 함수 search, shuttle 등
+        
 
     def create_menu(self):
         menubar = Menu(self.window)
@@ -46,6 +47,9 @@ class mainGui:
 
         self.window.config(menu=menubar)
     def create_frames(self):
+        # 새로운 페이지의 프레임 만들 때
+        # 페이지의 프레임은 window에 연결, 페이지 안의 내용들은 만든 프레임에 연결
+
         self.create_search_frame()
         self.create_shuttle_frame()
 
