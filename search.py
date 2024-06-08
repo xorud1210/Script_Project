@@ -54,6 +54,6 @@ def search_api( 종류, user_input = None):
             data_dict[child.tag] = child.text
         data_list.append(data_dict)
 
-    # for d in data_list:
-    #     print(d)
+    for d in data_list:
+        print(d)
     return data_list

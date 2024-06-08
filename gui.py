@@ -26,31 +26,62 @@ class mainGui:
         self.window['bg'] = "light gray"
         self.window.title("Flight Information")
 
-        self.create_main_ui()
-        self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
-        self.button_email_ui.pack(side='left', padx=10, pady=10)
+        self.frames = {}    # 하나의 창? 페이지? 가 한 프레임
+
+        self.create_frames()
+
         self.bot = telepot.Bot('7249865131:AAH6niNiFwVd5zgKxRUuw2-f2uSrQzU8DxM')
         MessageLoop(self.bot, self.handle_message).run_as_thread()
         #bot.sendMessage('7496452214', '테스트입니다')
 
-    def create_main_ui(self):
-        self.frame_search = Frame(self.window)
+        self.create_menu()
+        self.show_frame('search')
+
+    def create_menu(self):
+        menubar = Menu(self.window)
+
+        menubar.add_command(label='항공편 검색', command=lambda: self.show_frame("search"))
+
+        menubar.add_command(label='셔틀 정보', command=lambda: self.show_frame("shuttle"))
+
+        self.window.config(menu=menubar)
+    def create_frames(self):
+        self.create_search_frame()
+        self.create_shuttle_frame()
+
+        for frame in self.frames.values():
+            frame.place(relwidth=1, relheight=1)
+
+    def show_frame(self, name):
+        frame = self.frames[name]
+        frame.tkraise()
+
+
+    def create_search_frame(self):
+        self.frames['search'] = Frame(self.window)
+        # 검색 상자 프레임
+        self.frame_search = Frame(self.frames['search'], bg='skyblue')
+        self.frame_search.pack(anchor='center')
         self.toggle_button_text = StringVar()
         self.toggle_button_text.set("출발")
         self.button_toggle = Button(self.frame_search, textvariable=self.toggle_button_text,
                                     command=self.toggle_text)
         self.button_toggle.pack(side='left', padx=10, pady=10)
-        self.frame_search.pack()
+        # self.frames['search'].pack()
         self.image_button = PhotoImage(file="image/search_button25.png")
         self.button_search = Button(self.frame_search, image=self.image_button, command=self.search_weather)
         self.button_search['bg'] = 'dark gray'
         self.entry_search = Entry(self.frame_search)
 
+        # email 버튼
+        self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
+
         self.entry_search.pack(side='left')
         self.button_search.pack(side='right')
+        self.button_email_ui.pack(side='right', padx=10, pady=10)
 
         # 검색 리스트 / 버튼으로 변경 및 스크롤바 수정
-        self.frame_flight_container = Frame(self.window, bg="white")
+        self.frame_flight_container = Frame(self.frames['search'], bg="white")
         self.frame_flight_container.pack(side="left")
 
         self.canvas_flight = Canvas(self.frame_flight_container, bg='white',width=450,height=650)
@@ -66,28 +97,34 @@ class mainGui:
         self.frame_flight_info.bind("<Configure>", self.on_frame_configure)
 
         # 그래프
-        self.canvas_chart = Canvas(self.window, bg="dark gray")
+        self.canvas_chart = Canvas(self.frames['search'], bg="dark gray")
         self.canvas_chart.place(x=470, y=70, width=540, height=300)
 
         # 지도 표시
-        self.canvas_map = Canvas(self.window, bg="black")
+        self.canvas_map = Canvas(self.frames['search'], bg="black")
         self.canvas_map.place(x=470, y=380, width=540, height=300)
 
         self.label_map = Label(self.canvas_map)
         self.label_map.pack()
 
         # 기상 정보 표시
-        self.frame_weather = Frame(self.window, bg="light gray")
+        self.frame_weather = Frame(self.frames['search'], bg="light gray")
         self.frame_weather.place(x=470, y=690, width=540, height=100)
 
         self.label_weather_info = Label(self.frame_weather, text="", font=("Arial", 12), bg="light gray")
         self.label_weather_info.pack(pady=10)
 
         # 날씨 이미지
-        self.weather_label = Label(self.window)
+        self.weather_label = Label(self.frames['search'])
         self.weather_label.place(x=935, y=380, width=75, height=75)
 
         self.update_map()
+
+
+
+    def create_shuttle_frame(self):
+        self.frames['shuttle'] = Frame(self.window, bg='blue')
+        Label(self.frames['shuttle'], text='shuttle frame')
 
     def on_frame_configure(self, event):
         self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
@@ -106,13 +143,11 @@ class mainGui:
         Button(self.frame_new_ui, text="Send Email", command=self.open_email_ui).pack(pady=20)
 
     def back_to_main_ui(self):
-        self.clear_ui()
-        self.create_main_ui()
-        self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
-        self.button_email_ui.pack(side='left', padx=10, pady=10)
+        # self.clear_ui()
+        self.show_frame("search")
 
     def open_new_ui(self):
-        self.clear_ui()
+        # self.clear_ui()
         self.create_new_ui()
 
     def search_weather(self):
@@ -214,7 +249,6 @@ class mainGui:
 
     def update_map(self):
         # 지도 설정
-        """
         # 검색시에 도착 공항을 중심으로
         if self.toggle_get() == "출발":      # 출발일 때는 인천공항으로
             center = gmaps.geocode("인천공항")[0]['geometry']['location']
@@ -237,7 +271,6 @@ class mainGui:
 
         self.label_map.config(image=photo)
         self.label_map.image = photo
-        """
 
     def update_weather(self):
         url = self.airlines[0]['wimage']
