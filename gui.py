@@ -69,8 +69,7 @@ class mainGui:
         self.frame_search.pack(anchor='center')
         self.set_matplotlib_font()
 
-    def create_main_ui(self):
-        self.frame_search = Frame(self.window)
+        # self.frame_search = Frame(self.window)
         self.toggle_button_text = StringVar()
         self.toggle_button_text.set("출발")
         self.button_toggle = Button(self.frame_search, textvariable=self.toggle_button_text,
