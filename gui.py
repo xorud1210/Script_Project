@@ -9,6 +9,7 @@ import io
 from googlemaps import Client
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.font_manager as fm
 from collections import Counter
 import datetime
 import smtplib
@@ -66,6 +67,10 @@ class mainGui:
         # 검색 상자 프레임
         self.frame_search = Frame(self.frames['search'], bg='skyblue')
         self.frame_search.pack(anchor='center')
+        self.set_matplotlib_font()
+
+    def create_main_ui(self):
+        self.frame_search = Frame(self.window)
         self.toggle_button_text = StringVar()
         self.toggle_button_text.set("출발")
         self.button_toggle = Button(self.frame_search, textvariable=self.toggle_button_text,
@@ -216,6 +221,11 @@ class mainGui:
         )
         self.label_weather_info.config(text=weather_info)
 
+    def set_matplotlib_font(self):
+        # 여기에서 사용할 폰트 경로를 지정합니다. (예: 'C:/Windows/Fonts/malgun.ttf' 또는 시스템에 맞는 폰트 경로)
+        font_path = 'C:/Windows/Fonts/malgun.ttf'
+        font_name = fm.FontProperties(fname=font_path).get_name()
+        plt.rc('font', family=font_name)
     def create_bar_chart(self, arrivetimes):
         hours = [int(time[0:2]) for time in arrivetimes]  # 시간 부분 추출
         hour_counts = Counter(hours)
@@ -231,9 +241,9 @@ class mainGui:
         fig, ax = plt.subplots()
         ax.bar(hours_sorted, counts_sorted)
 
-        ax.set_xlabel('Hour of the Day')
-        ax.set_ylabel('Number of Flights')
-        ax.set_title('Number of Flights by Hour')
+
+        ax.set_ylabel('비행기 수')
+        ax.set_title("시간대별 공항 운행정보")
 
         # Tkinter에 그래프 표시
         canvas = FigureCanvasTkAgg(fig, master=self.canvas_chart)
@@ -269,12 +279,15 @@ class mainGui:
         # 지도 이미지 업데이트
         response = requests.get(map_url)
 
+
         image_data = io.BytesIO(response.content)
         image = Image.open(image_data)
         photo = ImageTk.PhotoImage(image)
 
+
         self.label_map.config(image=photo)
         self.label_map.image = photo
+
 
     def update_weather(self):
         url = self.airlines[0]['wimage']
