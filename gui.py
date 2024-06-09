@@ -9,6 +9,7 @@ import io
 from googlemaps import Client
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.font_manager as fm
 from collections import Counter
 import datetime
 import smtplib
@@ -32,6 +33,8 @@ class mainGui:
         self.bot = telepot.Bot('7249865131:AAH6niNiFwVd5zgKxRUuw2-f2uSrQzU8DxM')
         MessageLoop(self.bot, self.handle_message).run_as_thread()
         #bot.sendMessage('7496452214', '테스트입니다')
+
+        self.set_matplotlib_font()
 
     def create_main_ui(self):
         self.frame_search = Frame(self.window)
@@ -88,6 +91,7 @@ class mainGui:
         self.weather_label.place(x=935, y=380, width=75, height=75)
 
         self.update_map()
+
 
     def on_frame_configure(self, event):
         self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
@@ -177,6 +181,11 @@ class mainGui:
         )
         self.label_weather_info.config(text=weather_info)
 
+    def set_matplotlib_font(self):
+        # 여기에서 사용할 폰트 경로를 지정합니다. (예: 'C:/Windows/Fonts/malgun.ttf' 또는 시스템에 맞는 폰트 경로)
+        font_path = 'C:/Windows/Fonts/malgun.ttf'
+        font_name = fm.FontProperties(fname=font_path).get_name()
+        plt.rc('font', family=font_name)
     def create_bar_chart(self, arrivetimes):
         hours = [int(time[0:2]) for time in arrivetimes]  # 시간 부분 추출
         hour_counts = Counter(hours)
@@ -192,9 +201,9 @@ class mainGui:
         fig, ax = plt.subplots()
         ax.bar(hours_sorted, counts_sorted)
 
-        ax.set_xlabel('Hour of the Day')
-        ax.set_ylabel('Number of Flights')
-        ax.set_title('Number of Flights by Hour')
+
+        ax.set_ylabel('비행기 수')
+        ax.set_title("시간대별 공항 운행정보")
 
         # Tkinter에 그래프 표시
         canvas = FigureCanvasTkAgg(fig, master=self.canvas_chart)
@@ -213,9 +222,9 @@ class mainGui:
 
 
     def update_map(self):
-        # 지도 설정
+
         """
-        # 검색시에 도착 공항을 중심으로
+        # 검색시에 도착 공항 을 중심으로
         if self.toggle_get() == "출발":      # 출발일 때는 인천공항으로
             center = gmaps.geocode("인천공항")[0]['geometry']['location']
         else:                               # 도착일 때는 검색한 곳으로
@@ -231,13 +240,16 @@ class mainGui:
         # 지도 이미지 업데이트
         response = requests.get(map_url)
 
+
         image_data = io.BytesIO(response.content)
         image = Image.open(image_data)
         photo = ImageTk.PhotoImage(image)
 
+
         self.label_map.config(image=photo)
         self.label_map.image = photo
         """
+
 
     def update_weather(self):
         url = self.airlines[0]['wimage']
