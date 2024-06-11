@@ -131,8 +131,19 @@ class mainGui:
 
 
     def create_shuttle_frame(self):
-        self.frames['shuttle'] = Frame(self.window, bg='blue')
-        Label(self.frames['shuttle'], text='shuttle frame')
+        self.search_parking()
+        self.frames['shuttle'] = Frame(self.window, bg='blue', width=1000,height=800)
+        self.frame_shuttle = Frame(self.frames['shuttle'])
+        map_image = Image.open("image/map.png")
+        map_resized = map_image.resize((self.window.winfo_width() ,self.window.winfo_height()), Image.LANCZOS)
+        self.map_photo = ImageTk.PhotoImage(map_resized)
+
+
+        self.shuttle_map = Label(self.frame_shuttle,image=self.map_photo)
+        self.shuttle_map.pack(fill='both')
+        self.frame_shuttle.pack(fill='both')
+
+
 
     def on_frame_configure(self, event):
         self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
@@ -186,7 +197,14 @@ class mainGui:
 
     def search_shuttle(self):
         data = search.search_api('셔틀')
-        # 아직 무슨 데이터를 어떻게 주는지 몰라서 나중에 업데이트 해야 될 듯?
+        # direction = 안나와있음
+        # loc = 셔틀버스 위치     @ 0이 아니면 이전 정거장의 위치값,  0이면 목적지 도착 -> PredTimes도 0
+        # ofrTime = 제공시간 YYYYMMDDHHMMSS      라는데 뭔지 모르겠구요
+        # ord = 노선상 정류장 순번      별 의미 없을듯
+        # predTimes = 도착예측시간(분)
+        # routeId = 노선 ID
+        # stopId = 정류장 ID   라는데 목적지가 stopId인지 direction인지 모르겠는데;
+
 
     def search_parking(self):
         data = search.search_api('주차')
