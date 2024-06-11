@@ -44,7 +44,12 @@ class mainGui:
 
         menubar.add_command(label='항공편 검색', command=lambda: self.show_frame("search"))
 
-        menubar.add_command(label='셔틀 정보', command=lambda: self.show_frame("shuttle"))
+
+        parking_menu = Menu(menubar, tearoff=0)
+        parking_menu.add_command(label='제 1여객터미널', command=lambda: self.show_frame("parking_t1"))
+        parking_menu.add_command(label='제 2여객터미널', command=lambda: self.show_frame("parking_t2"))
+        menubar.add_cascade(label="주차 정보", menu=parking_menu)
+
 
         self.window.config(menu=menubar)
     def create_frames(self):
@@ -52,7 +57,7 @@ class mainGui:
         # 페이지의 프레임은 window에 연결, 페이지 안의 내용들은 만든 프레임에 연결
 
         self.create_search_frame()
-        self.create_shuttle_frame()
+        self.create_parking_frame()
 
         for frame in self.frames.values():
             frame.place(relwidth=1, relheight=1)
@@ -135,20 +140,69 @@ class mainGui:
 
 
 
-    def create_shuttle_frame(self):
+    def create_parking_frame(self):
         self.search_parking()
-        self.frames['shuttle'] = Frame(self.window, bg='blue', width=1000,height=800)
-        self.frame_shuttle = Frame(self.frames['shuttle'])
-        map_image = Image.open("image/map.png")
-        map_resized = map_image.resize((self.window.winfo_width() ,self.window.winfo_height()), Image.LANCZOS)
+
+        # t1 주차장
+        self.frames['parking_t1'] = Frame(self.window, bg='white', width=1000,height=800)
+        self.frame_parking_t1 = Frame(self.frames['parking_t1'])
+        self.frame_parking_t1.pack(fill='both')
+
+        map_image = Image.open("image/map_t1.png")
+        map_resized = map_image.resize((1000 ,800), Image.LANCZOS)
         self.map_photo = ImageTk.PhotoImage(map_resized)
-
-
-        self.shuttle_map = Label(self.frame_shuttle,image=self.map_photo)
+        self.shuttle_map = Label(self.frame_parking_t1, image=self.map_photo)
         self.shuttle_map.pack(fill='both')
-        self.frame_shuttle.pack(fill='both')
+
+        self.button_t1_P = []
+        self.image = []
+        for i in range(6):
+            self.image.append(PhotoImage(file='image/t1_p'+ str(i) +'.png'))
+            self.button_t1_P.append(Button(self.frame_parking_t1, width=100, height = 30, image = self.image[i]))
+            # self.button_P.append(Button(self.frame_shuttle, width=14, height=2))
+
+        self.button_t1_P[0].place(x= 137, y=238)
+        self.button_t1_P[1].place(x= 713, y=306)
+        self.button_t1_P[2].place(x= 133, y=304)
+        self.button_t1_P[3].place(x= 499, y=511)
+        self.button_t1_P[4].place(x= 234, y=510)
+        self.button_t1_P[5].place(x= 292, y=634)
+
+        # t2 주차장
+        self.frames['parking_t2'] = Frame(self.window, bg='white', width=1000, height=800)
+        self.frame_parking_t2 = Frame(self.frames['parking_t2'])
+        self.frame_parking_t2.pack(fill='both')
+
+        map_image = Image.open("image/map_t2.png")
+        map_resized = map_image.resize((1000, 800), Image.LANCZOS)
+        self.map_photo_2 = ImageTk.PhotoImage(map_resized)
+        self.shuttle_map_2 = Label(self.frame_parking_t2, image=self.map_photo_2)
+        self.shuttle_map_2.pack(fill='both')
+
+        self.button_t2_P = []
+        self.image_2 = []
+
+        self.image_2.append(PhotoImage(file='image/t2_short.png'))
+        self.button_t2_P.append(Button(self.frame_parking_t2, width=100, height=40, image=self.image_2[0]))
+
+        self.image_2.append(PhotoImage(file='image/t2_reserve.png'))
+        self.button_t2_P.append(Button(self.frame_parking_t2, width=42, height=104, image=self.image_2[1]))
+
+        self.image_2.append(PhotoImage(file='image/t2_long.png'))
+        self.button_t2_P.append(Button(self.frame_parking_t2, width=105, height=48, image=self.image_2[2]))
 
 
+        self.button_t2_P[0].place(x=243, y=662)
+        self.button_t2_P[1].place(x=533, y=212)
+        self.button_t2_P[2].place(x=620, y=285)
+
+        # 좌표 찍기용
+        self.window.bind("<Button-1>", self.print_click_coordinates)
+
+
+    def print_click_coordinates(self, event):
+        # Print the x and y coordinates of the mouse click
+        print(f"Clicked at: ({event.x}, {event.y})")
 
     def on_frame_configure(self, event):
         self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
