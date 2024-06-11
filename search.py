@@ -29,13 +29,9 @@ def search_api( 종류, user_input = None):
             info = "StatusOfPassengerWorldWeatherInfo/"+operation+"?serviceKey=" + serviceKey
             request = "numOfRows=20&pageNo=1&from_time=0000&to_time=2400&airport="+arrival+"&lang=K&type=xml"
     elif 종류 == '주차':
-        info = "BusInformation/getBusInfo?serviceKey="+serviceKey
-        request = "numOfRows=10&pageNo=1&area=1&type=xml"
-    elif 종류 == '셔틀':
-        # 도착정보 :/B551177/ShtbusInfo/getShtbArrivalPredInfo?serviceKey=eLcNVCfcVblDAm4R38R6ZyXiv6NCbnm4BW%2BDZkJ8n6pyZ%2B%2B0neiwxu9JxX8Vfq6p11Kprd%2Fc7csZGGulLZjvEQ%3D%3D&type=xml&location=0&numOfRows=10&pageNo=1
-        # 출발시간 :/B551177/ShtbusInfo/getShtbTimeInfo?serviceKey=eLcNVCfcVblDAm4R38R6ZyXiv6NCbnm4BW%2BDZkJ8n6pyZ%2B%2B0neiwxu9JxX8Vfq6p11Kprd%2Fc7csZGGulLZjvEQ%3D%3D&type=xml&day_type=1&start_time=0&numOfRows=10&pageNo=1
-        info = "ShtbusInfo/getShtbTimeInfo?serviceKey=" + serviceKey
-        request = "type=xml&day_type=1&start_time=0&numOfRows=10&pageNo=1"
+        # BusInformation/getBusInfo
+        info = "StatusOfParking/getTrackingParking?serviceKey="+serviceKey
+        request = "numOfRows=30&pageNo=1&area=1&type=xml"
 
 
     key = "/B551177/" + info
@@ -54,6 +50,4 @@ def search_api( 종류, user_input = None):
             data_dict[child.tag] = child.text
         data_list.append(data_dict)
 
-    for d in data_list:
-        print(d)
     return data_list

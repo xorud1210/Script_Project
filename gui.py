@@ -50,6 +50,7 @@ class mainGui:
         parking_menu.add_command(label='제 2여객터미널', command=lambda: self.show_frame("parking_t2"))
         menubar.add_cascade(label="주차 정보", menu=parking_menu)
 
+        menubar.add_command(label='예약 정보', command=lambda: self.show_frame("reservation"))
 
         self.window.config(menu=menubar)
     def create_frames(self):
@@ -58,11 +59,17 @@ class mainGui:
 
         self.create_search_frame()
         self.create_parking_frame()
+        self.create_reservation_frame()
 
         for frame in self.frames.values():
             frame.place(relwidth=1, relheight=1)
 
     def show_frame(self, name):
+        if self.toggle_state == True:
+            self.toggle_state = False
+            self.frame_parking_info_t1.place_forget()
+            self.frame_parking_info_t2.place_forget()
+
         frame = self.frames[name]
         frame.tkraise()
 
@@ -114,6 +121,9 @@ class mainGui:
         self.canvas_flight.create_window((0,0), window=self.frame_flight_info, anchor='nw')
         self.frame_flight_info.bind("<Configure>", self.on_frame_configure)
 
+        self.selected_button_search = None
+
+
         # 그래프
         self.canvas_chart = Canvas(self.frames['search'], bg="dark gray")
         self.canvas_chart.place(x=470, y=70, width=540, height=300)
@@ -138,6 +148,20 @@ class mainGui:
 
         self.update_map()
 
+        # 즐겨찾기 버튼
+        self.star_image = PhotoImage(file='image/star.png')
+        self.button_reservation_add = Button(self.frames['search'], bg='white', image=self.star_image, command=self.reservation_add)
+        self.button_reservation_add.place(x=1000-64,y=10)
+
+    def reservation_add(self):
+        if self.selected_button_search.cget('text') not in self.reservation_list:
+            # btn = Button(self.frame_reservation_info, text=self.selected_button_search.cget('text'),width=63,height=5)
+            # btn.config(command=lambda button = btn : self.button_click_reservation(button))
+            self.reservation_list.append(self.selected_button_search.cget('text'))
+            self.update_reservation_list()
+
+    def on_frame_configure(self, event):
+        self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
 
 
     def create_parking_frame(self):
@@ -159,7 +183,13 @@ class mainGui:
         for i in range(6):
             self.image.append(PhotoImage(file='image/t1_p'+ str(i) +'.png'))
             self.button_t1_P.append(Button(self.frame_parking_t1, width=100, height = 30, image = self.image[i]))
-            # self.button_P.append(Button(self.frame_shuttle, width=14, height=2))
+                                # command=lambda :self.toggle_frame(i,'t1')))
+        self.button_t1_P[0].config(command = lambda :self.toggle_frame(0,'t1'))
+        self.button_t1_P[1].config(command = lambda :self.toggle_frame(1,'t1'))
+        self.button_t1_P[2].config(command = lambda :self.toggle_frame(2,'t1'))
+        self.button_t1_P[3].config(command = lambda :self.toggle_frame(3,'t1'))
+        self.button_t1_P[4].config(command = lambda :self.toggle_frame(4,'t1'))
+        self.button_t1_P[5].config(command = lambda :self.toggle_frame(5,'t1'))
 
         self.button_t1_P[0].place(x= 137, y=238)
         self.button_t1_P[1].place(x= 713, y=306)
@@ -167,6 +197,12 @@ class mainGui:
         self.button_t1_P[3].place(x= 499, y=511)
         self.button_t1_P[4].place(x= 234, y=510)
         self.button_t1_P[5].place(x= 292, y=634)
+
+        # 버튼 위치 정보
+        self.button_xy = {'t1' : [(137,238),(713, 306),(133,304), (499,511),(234,510),(292,634)]}
+
+
+
 
         # t2 주차장
         self.frames['parking_t2'] = Frame(self.window, bg='white', width=1000, height=800)
@@ -183,29 +219,146 @@ class mainGui:
         self.image_2 = []
 
         self.image_2.append(PhotoImage(file='image/t2_short.png'))
-        self.button_t2_P.append(Button(self.frame_parking_t2, width=100, height=40, image=self.image_2[0]))
+        self.button_t2_P.append(Button(self.frame_parking_t2, width=100, height=40, image=self.image_2[0],
+                                    command=lambda :self.toggle_frame(0,'t2')))
 
         self.image_2.append(PhotoImage(file='image/t2_reserve.png'))
-        self.button_t2_P.append(Button(self.frame_parking_t2, width=42, height=104, image=self.image_2[1]))
-
+        self.button_t2_P.append(Button(self.frame_parking_t2, width=42, height=104, image=self.image_2[1],
+                                    command=lambda :self.toggle_frame(1,'t2')))
         self.image_2.append(PhotoImage(file='image/t2_long.png'))
-        self.button_t2_P.append(Button(self.frame_parking_t2, width=105, height=48, image=self.image_2[2]))
+        self.button_t2_P.append(Button(self.frame_parking_t2, width=105, height=48, image=self.image_2[2],
+                                    command=lambda :self.toggle_frame(2,'t2')))
 
 
         self.button_t2_P[0].place(x=243, y=662)
         self.button_t2_P[1].place(x=533, y=212)
         self.button_t2_P[2].place(x=620, y=285)
-
-        # 좌표 찍기용
-        self.window.bind("<Button-1>", self.print_click_coordinates)
+        self.button_xy['t2'] = [(243,662),(533,212),(620,285)]
 
 
-    def print_click_coordinates(self, event):
-        # Print the x and y coordinates of the mouse click
-        print(f"Clicked at: ({event.x}, {event.y})")
+        self.toggle_state = False   # 주차장 정보가 떠있는지 상태값
 
-    def on_frame_configure(self, event):
-        self.canvas_flight.configure(scrollregion=self.canvas_flight.bbox("all"))
+        # 주차 정보를 띄우는 프레임
+        self.frame_parking_info_t1 = Frame(self.frame_parking_t1, bg='lightgray')
+        self.frame_parking_info_t2 = Frame(self.frame_parking_t2, bg='lightgray')
+
+        self.parking_info = StringVar()
+        self.parking_info.set(" ")
+
+        self.label_parking_info_t1 = Label(self.frame_parking_info_t1, textvariable=self.parking_info)
+        self.label_parking_info_t1.pack()
+        self.label_parking_info_t2 = Label(self.frame_parking_info_t2, textvariable=self.parking_info)
+        self.label_parking_info_t2.pack()
+
+        self.before_select = None
+
+
+    def create_reservation_frame(self):
+        self.reservation_list = []
+        self.selected_button_reservation = None
+
+        self.frames['reservation'] = Frame(self.window, bg='gainsboro', width=1000,height=800)
+
+        # 검색 리스트 / 버튼으로 변경 및 스크롤바 수정
+        self.reservation_container = Frame(self.frames['reservation'], bg="white")
+        self.reservation_container.pack(side="left")
+
+        self.canvas_reservation = Canvas(self.reservation_container, bg='linen', width=450, height=800)
+        self.canvas_reservation.pack(side="left")
+
+        self.scrollbar = Scrollbar(self.reservation_container, orient="vertical", command=self.canvas_reservation.yview)
+        self.scrollbar.pack(side="right", fill='y')
+
+        self.frame_reservation_info = Frame(self.canvas_reservation, bg="white")
+
+        self.canvas_reservation.config(yscrollcommand=self.scrollbar.set)
+        self.canvas_reservation.create_window((0, 0), window=self.frame_reservation_info, anchor='nw')
+        self.frame_reservation_info.bind("<Configure>", self.on_frame_configure_r)
+
+        self.image_x = PhotoImage(file="image/x.png")
+        self.button_remove = Button(self.frames['reservation'], bg = 'white', image= self.image_x, command=self.remove_reservation)
+        self.button_remove.pack(side='left', anchor='center')
+
+    def on_frame_configure_r(self, event):
+        self.canvas_reservation.configure(scrollregion=self.canvas_reservation.bbox("all"))
+
+    def remove_reservation(self):
+        if self.selected_button_reservation:
+            self.reservation_list.remove(self.selected_button_reservation.cget('text'))
+            self.selected_button_reservation = None
+            self.update_reservation_list()
+        #
+        # for button in self.reservation_list:
+        #     btn = Button(self.frame_reservation_info, text=button.cget('text'),width=63,height=5)
+
+
+
+    def update_reservation_list(self):
+        # 기존 정보 삭제
+        for widget in self.frame_reservation_info.winfo_children():
+            widget.destroy()
+
+        # 새로 업데이트
+        for txt in self.reservation_list:
+            btn = Button(self.frame_reservation_info, text=txt, width=63, height=5)
+            btn.config(command=lambda button=btn : self.button_click_reservation(button))
+            btn.pack(fill='x', pady=5)
+
+
+
+    def toggle_frame(self, i, t):
+        if self.toggle_state and self.before_select != None and  self.before_select == i:
+            if t == 't1':
+                self.frame_parking_info_t1.place_forget()
+            elif t == 't2':
+                self.frame_parking_info_t2.place_forget()
+        else:
+            x, y = self.button_xy[t][i]
+            if t == 't1':
+                self.frame_parking_info_t1.place(x=x-100, y=y - 70)
+            elif t == 't2':
+                self.frame_parking_info_t2.place(x=x-100, y=y - 70)
+            self.update_parking_info(i,t)
+
+        self.toggle_state = not self.toggle_state
+        if self.toggle_state and self.before_select != None and self.before_select != i:
+            self.toggle_state = True
+        self.before_select = i
+
+    def update_parking_info(self, i, t):
+        text = ''
+        # 노가다
+        if t == 't1':
+            if i == 0:
+                for j in range(3):
+                    text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 1:
+                for j in range(3,5):
+                    text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 2:
+                for j in range(5,7):
+                    text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 3:
+                j = 7
+                text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 4:
+                j = 8
+                text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 5:
+                j = 9
+                text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+        elif t == 't2':
+            if i == 0:
+                for j in range(5):
+                    text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 1:
+                j = 5
+                text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+            elif i == 2:
+                j = 6
+                text += f"{self.data_parking[t][j]['floor']}\t주차된 차량 : {self.data_parking[t][j]['parking']}대 수용가능 차량 : {self.data_parking[t][j]['parkingarea']}대\n"
+        self.parking_info.set(text)
+
 
     def clear_ui(self):
         for widget in self.window.winfo_children():
@@ -244,8 +397,15 @@ class mainGui:
             arrivetimes.append(item['estimatedDateTime'])
 
 
+        for widget in self.frame_flight_info.winfo_children():
+            widget.destroy()
+            self.selected_button_search = None
         for i in range(len(self.airlines)):
-            text = f"항공사: {self.airlines[i]['airline']} \n도착 예정시간: {self.airlines[i]['estimatedDateTime']}\n탑승구: {self.airlines[i]['gatenumber']}"
+            if self.toggle_get() == "출발":
+                path = self.entry_search.get() + "---> 인천\n"
+            else:
+                path = self.entry_search.get() + "<--- 인천\n"
+            text = path + f"항공사: {self.airlines[i]['airline']} \n도착 예정시간: {self.airlines[i]['estimatedDateTime']}\n탑승구: {self.airlines[i]['gatenumber']}"
             self.create_flight_info(text)
 
         self.display_weather_info(self.airlines[0]['wind'], self.airlines[0]['temp'], self.airlines[0]['senstemp'], self.airlines[0]['himidity'])
@@ -254,39 +414,41 @@ class mainGui:
         self.update_weather()
         self.create_bar_chart(arrivetimes)
 
-    def search_shuttle(self):
-        data = search.search_api('셔틀')
-        # direction = 안나와있음
-        # loc = 셔틀버스 위치     @ 0이 아니면 이전 정거장의 위치값,  0이면 목적지 도착 -> PredTimes도 0
-        # ofrTime = 제공시간 YYYYMMDDHHMMSS      라는데 뭔지 모르겠구요
-        # ord = 노선상 정류장 순번      별 의미 없을듯
-        # predTimes = 도착예측시간(분)
-        # routeId = 노선 ID
-        # stopId = 정류장 ID   라는데 목적지가 stopId인지 direction인지 모르겠는데;
-
 
     def search_parking(self):
         data = search.search_api('주차')
-        # 아직 무슨 데이터를 어떻게 주는지 몰라서 나중에 업데이트 해야 될 듯?
+
+        self.data_parking = { 't1' :[], 't2' : []}
+        for item in data:
+            d = dict()
+            for key, value in item.items():
+                d[key] = value
+            if 'T1' in item['floor']:
+                self.data_parking['t1'].append(d)
+            else:
+                self.data_parking['t2'].append(d)
+
+
 
     def create_flight_info(self, text):
         button = Button(self.frame_flight_info,text=text,width=63,height=5)
-        button.config(command=lambda btn = button: self.select_flight)
+        button.config(command=lambda btn=button: self.button_click(btn))
         button.pack(fill='x', pady=5)
-        # frame = Frame(parent, bg="light gray", bd=2, relief="groove")
-        # frame.place(x=10, y=10 + index * 120, width=410, height=110)
-        #
-        # label_airline = Label(frame, text=airline, bg="light gray", font=("Arial", 14))
-        # label_airline.pack(anchor='w', padx=10, pady=5)
-        #
-        # label_arrival_time = Label(frame, text=arrival_time, bg="light gray", font=("Arial", 12))
-        # label_arrival_time.pack(anchor='w', padx=10)
-        #
-        # label_gate = Label(frame, text=gate, bg="light gray", font=("Arial", 12))
-        # label_gate.pack(anchor='w', padx=10)
 
-    def select_flight(self):
-        pass
+    def button_click(self, button):
+        if self.selected_button_search:
+            self.selected_button_search.config(bg="SystemButtonFace")
+
+        button.config(bg="lightblue")
+        self.selected_button_search = button
+
+    def button_click_reservation(self, button):
+        if self.selected_button_reservation:
+            self.selected_button_reservation.config(bg="SystemButtonFace")
+
+        button.config(bg="lightblue")
+        self.selected_button_reservation = button
+
     def display_weather_info(self, winds, temps, senstemps, himiditys):
         # 날씨 정보를 라벨에 표시하는 함수
         weather_info = (
@@ -340,7 +502,7 @@ class mainGui:
     def update_map(self):
         # 지도 설정
         # 검색시에 도착 공항을 중심으로
-        """
+
         if self.toggle_get() == "출발":      # 출발일 때는 인천공항으로
             center = gmaps.geocode("인천공항")[0]['geometry']['location']
         else:                               # 도착일 때는 검색한 곳으로
@@ -364,7 +526,7 @@ class mainGui:
 
         self.label_map.config(image=photo)
         self.label_map.image = photo
-        """
+
 
     def update_weather(self):
         url = self.airlines[0]['wimage']
@@ -434,6 +596,9 @@ class mainGui:
     def handle_message(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
         if content_type == 'text':
+            if msg['text'] == "주차장 정보":
+                self.bot.sendMessage(chat_id, self.get_parking_info())
+                return
             airport_name = msg['text']
             # 공항 이름을 사용하여 운항 정보를 검색
             flight_info = self.get_flight_info(airport_name)
@@ -457,6 +622,18 @@ class mainGui:
             flight_info.append(info)
 
         return "\n\n".join(flight_info)
+
+    def get_parking_info(self):
+        data = self.search_parking()
+
+        text = ''
+
+        for _,d in self.data_parking.items():
+            text += _[0].upper() + _[1] + '\n'
+            for i in d:
+                text += f"{i['floor']}\t주차된 차량 : {i['parking']}대 수용가능 차량 : {i['parkingarea']}대\n"
+
+        return "\n\n" + text
 
 
 class NewUI:
