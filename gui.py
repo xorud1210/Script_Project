@@ -82,7 +82,12 @@ class mainGui:
         self.entry_search = Entry(self.frame_search)
 
         # email 버튼
-        self.button_email_ui = Button(self.frame_search, text="Open UI", command=self.open_new_ui)
+
+
+        self.gmail_image = PhotoImage(file="image/gmail25.png")
+        self.button_email_ui = Button(self.frame_search, image=self.gmail_image, command=self.open_email_ui)
+        self.button_email_ui['bg'] = 'dark gray'
+        self.button_email_ui.pack(side='right', padx=10, pady=10)
 
         self.entry_search.pack(side='left')
         self.button_search.pack(side='right')
@@ -281,6 +286,7 @@ class mainGui:
     def update_map(self):
         # 지도 설정
         # 검색시에 도착 공항을 중심으로
+        """
         if self.toggle_get() == "출발":      # 출발일 때는 인천공항으로
             center = gmaps.geocode("인천공항")[0]['geometry']['location']
         else:                               # 도착일 때는 검색한 곳으로
@@ -304,7 +310,7 @@ class mainGui:
 
         self.label_map.config(image=photo)
         self.label_map.image = photo
-
+        """
 
     def update_weather(self):
         url = self.airlines[0]['wimage']
@@ -348,7 +354,14 @@ class mainGui:
             msg['To'] = to_addr
             msg['Subject'] = 'Flight Information'
 
-            body = 'Here is the flight information you requested.'
+            # 운항 정보를 본문에 추가
+            body = 'Here is the flight information you requested:\n\n'
+            for airline in self.airlines:
+                body += (
+                    f"항공사: {airline['airline']}\n"
+                    f"도착 예정시간: {airline['estimatedDateTime']}\n"
+                    f"탑승구: {airline['gatenumber']}\n\n"
+                )
 
             msg.attach(MIMEText(body, 'plain'))
 
